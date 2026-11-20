@@ -79,15 +79,13 @@ ul.help{color:var(--dim);padding-left:20px}ul.help li{margin:3px 0}
 </head>
 <body>
 <nav class="qm">
-  <a href="#cal">달력</a><a href="#set">설정</a><a href="#now">지금<span class="cnt" id="navCnt" hidden></span></a><a href="#agenda">일정</a><a href="#log">제작 기록</a><a href="#help">읽는 법</a>
+  <a href="#cal">달력</a><a href="#set">설정</a><a href="#now">지금<span class="cnt" id="navCnt" hidden></span></a><a href="#agenda">일정</a><a href="#log">제작 기록</a>
   <span class="sp"></span><span class="sub" id="clock"></span>
 </nav>
 <div id="flash"></div>
 <div id="dayDlg" hidden><div class="dlg"><h3 id="ddTitle"></h3><div id="ddList"></div>
 <form id="ddForm" class="lf"><label>제조 기술 <select id="ddItem"></select></label><label>시간 <input type="time" id="ddTime" required></label><input type="text" id="ddMemo" placeholder="메모 (선택)" maxlength="80"><button class="pri" type="submit">기록</button><button type="button" data-act="ddclose">닫기</button></form></div></div>
 <main>
-<h1>제조 쿨타임 달력</h1>
-<div class="sub" id="meta"></div>
 <div class="note" id="stale" hidden></div>
 
 <h2 id="cal">달력</h2>
@@ -95,7 +93,6 @@ ul.help{color:var(--dim);padding-left:20px}ul.help li{margin:3px 0}
   <button data-act="prev" title="이전 달">◀</button><button data-act="thismonth">이번 달</button><button data-act="next" title="다음 달">▶</button>
   <label>표시 <select id="months"><option value="1">1개월</option><option value="2">2개월</option><option value="3">3개월</option></select></label>
 </div>
-<div class="sub" style="margin:4px 2px">날짜를 누르면 그 날짜로 제작 기록을 적을 수 있습니다.</div>
 <div class="legend">
   <span><span class="chip" style="--c:#aaa"><b>21:13</b></span>쿨타임 끝남 (기록)</span>
   <span><span class="chip done" style="--c:#aaa"><b>21:13</b></span>이미 끝남 = 제작 가능</span>
@@ -105,7 +102,7 @@ ul.help{color:var(--dim);padding-left:20px}ul.help li{margin:3px 0}
 </div>
 <div id="calBody"></div>
 
-<h2 id="set">아이템별 설정</h2>
+<h2 id="set">설정</h2>
 <div class="scroll"><table class="st"><thead><tr><th>제조 기술</th><th>표시</th><th>알람</th><th>알람 시점</th><th>예상</th><th>사용 시점 (예상용)</th><th></th></tr></thead><tbody id="setBody"></tbody></table></div>
 <form class="lf" id="addForm" style="margin-top:10px">
   <span class="sub">항목 직접 추가</span>
@@ -113,7 +110,6 @@ ul.help{color:var(--dim);padding-left:20px}ul.help li{margin:3px 0}
   <select id="addCraft"></select>
   <button type="submit">추가</button>
 </form>
-<div class="sub" style="margin:6px 2px">게임 기록에 없는 캐릭터·기술을 직접 넣어 제작 기록만으로 쿨타임을 따라갈 수 있습니다.</div>
 
 <h2 id="now">지금 상태</h2>
 <div id="readyBox"></div>
@@ -142,19 +138,8 @@ ul.help{color:var(--dim);padding-left:20px}ul.help li{margin:3px 0}
   <button data-act="import">가져오기</button><input type="file" id="impFile" accept="application/json,.json" hidden>
   <span class="sub">다른 기기로 옮길 때: 기록과 설정을 파일로 내보내 그 기기에서 가져옵니다.</span>
 </div>
-
-<h2 id="help">읽는 법</h2>
-<ul class="help">
-  <li>자료는 자작 애드온 CraftReady 가 계정 공용으로 남긴 기록(캐릭터별 쿨타임 종료 시각)입니다. 게임에서 <b>/reload 하거나 로그아웃</b>한 뒤 PC에서 생성 스크립트를 <code>--publish</code>로 돌리면 이 페이지가 갱신됩니다. 페이지 혼자서는 게임 상태를 알 수 없습니다.</li>
-  <li>그 사이에 제작한 것은 <b>제작 기록</b>(상태 표의 "제작함" 버튼 또는 기록 양식)으로 남기면 그 시각 + 쿨타임 길이로 다시 계산합니다. 게임 기록이 더 나중 것이면 게임 기록을 따릅니다. 아케이나이트·군단석·원소 변환식은 쿨타임을 함께 쓰므로 하나를 기록하면 나머지도 같이 쿨타임에 들어갑니다.</li>
-  <li><b>제작 기록·설정은 이 기기의 브라우저에만 저장</b>됩니다(서버 없음). PC와 휴대폰은 따로이며, "내보내기/가져오기"로 옮길 수 있습니다. 브라우저 자료를 지우면 함께 사라집니다.</li>
-  <li><b>알람</b>: "알람 켜기"를 누르면 제작 가능해질 때(또는 설정한 N분 전에) 소리·진동·화면 알림을 냅니다. <b>이 페이지가 열려 있는 동안에만</b> 울립니다(브라우저를 닫거나 휴대폰 화면이 꺼지면 울리지 않을 수 있음). 닫혀 있던 동안 준비된 것은 다음에 열 때 한 번 알려 줍니다. 페이지를 닫아도 알림을 받으려면 "달력 앱에 추가 (.ics)"로 휴대폰 달력에 일정을 넣으세요(알람이 켜진 항목만, 예상 포함 30일치).</li>
-  <li>달력의 <b>날짜를 누르면</b> 그 날짜에 제조 기술과 시간을 적어 기록할 수 있고, 그 날 적은 기록을 지울 수도 있습니다. 지난 날짜에는 내가 적은 기록(✔)과, 생성 스크립트가 그동안 모아 둔 이전 쿨타임 종료 시각이 남습니다.</li>
-  <li>달력의 점선 칸은 <b>예상</b>입니다(처음에는 꺼져 있고 "설정"에서 항목마다 켭니다). 항목마다 "끝나자마자 다시 쓴다" 또는 "매일 N시에 쓴다"고 가정하고 쿨타임 길이를 더해 이어 간 것입니다. 쿨타임 12시간 미만인 기술은 예상을 넣지 않습니다.</li>
-  <li>쿨타임 길이(클라이언트 DB 기준): 아케인(아케이나이트 변환식)·군단석 변환식 47시간, 원소 변환식 23시간, 달빛 옷감 95시간, 소금(소금 정제기) 71시간. 글자색은 그 캐릭터의 직업 색입니다. 시각은 이 기기의 현지 시각입니다.</li>
-</ul>
 </main>
-<script id="data" type="application/json">{"generated":1795142525,"saved":1795131646,"crafts":{"s17187":{"n":"아케인","s":"아케인","p":"연금술","h":47,"g":"transmute","off":false,"d":false,"o":0},"s1317279":{"n":"변환식: 군단석","s":"군단석","p":"연금술","h":47,"g":"transmute","off":true,"d":false,"o":1},"s25146":{"n":"변환식: 자연의 불꽃","s":"불꽃","p":"연금술","h":0.16666666666666666,"g":"transmute","off":true,"d":false,"o":2},"s17559":{"n":"변환식: 바람을 불로","s":"바람→불","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":3},"s17560":{"n":"변환식: 불을 대지로","s":"불→대지","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":4},"s17561":{"n":"변환식: 대지를 물로","s":"대지→물","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":5},"s17562":{"n":"변환식: 물을 바람으로","s":"물→바람","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":6},"s17563":{"n":"변환식: 불사를 물로","s":"불사→물","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":7},"s17564":{"n":"변환식: 물을 불사로","s":"물→불사","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":8},"s17565":{"n":"변환식: 생명을 대지로","s":"생명→대지","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":9},"s17566":{"n":"변환식: 대지를 생명으로","s":"대지→생명","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":10},"s18560":{"n":"달빛 옷감","s":"달빛","p":"재봉술","h":95,"g":null,"off":false,"d":false,"o":11},"i15846":{"n":"소금","s":"소금","p":"가죽세공","h":71,"g":null,"off":false,"d":false,"o":12}},"chars":[{"key":"c1","name":"캐릭터 1","realm":"","cls":"SHAMAN","updated":1795127071,"crafts":[{"k":"s17187","v":1795194781},{"k":"i15846","v":1795339146}]}],"hist":[{"c":"c1","k":"s17187","t":1795194781},{"c":"c1","k":"i15846","t":1795339146}]}</script>
+<script id="data" type="application/json">{"generated":1795143041,"saved":1795131646,"crafts":{"s17187":{"n":"아케인","s":"아케인","p":"연금술","h":47,"g":"transmute","off":false,"d":false,"o":0},"s1317279":{"n":"변환식: 군단석","s":"군단석","p":"연금술","h":47,"g":"transmute","off":true,"d":false,"o":1},"s25146":{"n":"변환식: 자연의 불꽃","s":"불꽃","p":"연금술","h":0.16666666666666666,"g":"transmute","off":true,"d":false,"o":2},"s17559":{"n":"변환식: 바람을 불로","s":"바람→불","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":3},"s17560":{"n":"변환식: 불을 대지로","s":"불→대지","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":4},"s17561":{"n":"변환식: 대지를 물로","s":"대지→물","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":5},"s17562":{"n":"변환식: 물을 바람으로","s":"물→바람","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":6},"s17563":{"n":"변환식: 불사를 물로","s":"불사→물","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":7},"s17564":{"n":"변환식: 물을 불사로","s":"물→불사","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":8},"s17565":{"n":"변환식: 생명을 대지로","s":"생명→대지","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":9},"s17566":{"n":"변환식: 대지를 생명으로","s":"대지→생명","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":10},"s18560":{"n":"달빛 옷감","s":"달빛","p":"재봉술","h":95,"g":null,"off":false,"d":false,"o":11},"i15846":{"n":"소금","s":"소금","p":"가죽세공","h":71,"g":null,"off":false,"d":false,"o":12}},"chars":[{"key":"c1","name":"캐릭터 1","realm":"","cls":"SHAMAN","updated":1795127071,"crafts":[{"k":"s17187","v":1795194781},{"k":"i15846","v":1795339146}]}],"hist":[{"c":"c1","k":"s17187","t":1795194781},{"c":"c1","k":"i15846","t":1795339146}]}</script>
 <script>
 (function(){
 "use strict";
@@ -409,8 +394,6 @@ function closeDay(){ddDay=null;$("dayDlg").hidden=true;}
 function renderAll(){var now=nowSec();renderNow(now);renderCal(now);renderLog();renderSet();alarmUI();$("months").value=ST.months;if(ddDay)renderDay();}
 function localISO(t){var d=new Date(t*1000);return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate())+"T"+hm(d);}
 function meta(){
-  var parts=DATA.chars.map(function(c){return esc(c.name)+" ("+(c.realm?esc(c.realm)+", ":"")+"기록 "+full(c.updated)+")";});
-  $("meta").innerHTML="게임 기록 "+new Date(DATA.saved*1000).getFullYear()+"."+full(DATA.saved)+" · 페이지 생성 "+full(DATA.generated);
   var age=nowSec()-DATA.saved;
   if(age>43200){$("stale").hidden=false;$("stale").textContent="게임 기록이 "+dur(age)+" 전 것입니다. 그 뒤에 제작한 것은 \"제작함\"으로 기록해 두면 쿨타임에 반영됩니다.";}
 }
