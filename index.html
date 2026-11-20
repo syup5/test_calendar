@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f1114">
+<meta name="robots" content="noindex">
+<title>제조 쿨타임 달력</title>
+<style>
+:root{--bg:#14161a;--panel:#1c1f25;--line:#2c313a;--fg:#e4e6ea;--dim:#8b93a1;--accent:#ffd36b;--ok:#6fdc8c;--warn:#ffa45c}
+*{box-sizing:border-box}
+html{scroll-behavior:auto}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 "Malgun Gothic","맑은 고딕","Apple SD Gothic Neo",system-ui,sans-serif;-webkit-text-size-adjust:100%}
+button,select,input,textarea{font:inherit;color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:4px 10px}
+button{cursor:pointer}button:hover{border-color:var(--accent)}
+button.pri{background:#2b4a33;border-color:#3f7a4d}
+button.sm{padding:2px 8px;font-size:13px}
+input[type=number]{width:64px;padding:4px 6px}
+input[type=checkbox]{width:18px;height:18px;vertical-align:middle;accent-color:var(--accent)}
+nav.qm{position:sticky;top:0;z-index:10;background:#0f1114;border-bottom:1px solid var(--line);padding:8px 12px;display:flex;gap:6px;align-items:center;overflow-x:auto;white-space:nowrap}
+nav.qm a{color:var(--fg);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:4px 10px;text-decoration:none}
+nav.qm a:hover{border-color:var(--accent)}
+nav.qm .cnt{background:var(--ok);color:#10210f;border-radius:9px;padding:0 6px;font-weight:bold;margin-left:4px}
+nav.qm .sp{flex:1}
+main{max-width:1280px;margin:0 auto;padding:14px}
+h1{font-size:20px;margin:6px 0 2px}
+h2{font-size:16px;margin:28px 0 8px;scroll-margin-top:58px}
+.sub{color:var(--dim);font-size:13px}
+.note{background:#2a2416;border:1px solid #5a4a1e;border-radius:8px;padding:8px 12px;margin:10px 0;color:#f1dca0}
+#readyBox{background:#17301f;border:1px solid #3f7a4d;border-radius:8px;padding:10px 12px;margin:12px 0}
+#readyBox.none{background:var(--panel);border-color:var(--line);color:var(--dim)}
+#readyBox h3{margin:0 0 6px;font-size:15px;color:var(--ok)}
+.rd{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;padding:5px 0;border-top:1px solid #2c5237}
+.rd:first-of-type{border-top:0}.rd .nm{flex:1;min-width:150px}
+#flash{position:fixed;left:12px;right:12px;bottom:12px;z-index:20;background:#2b4a33;border:1px solid var(--ok);border-radius:10px;padding:10px 14px;box-shadow:0 6px 24px #000a;display:none}
+#flash b{color:var(--ok)}#flash button{float:right;margin-left:10px}
+.scroll{overflow-x:auto;border-radius:8px}
+table.st{border-collapse:collapse;width:100%;background:var(--panel)}
+table.st th,table.st td{padding:6px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+table.st th{color:var(--dim);font-weight:normal;font-size:13px}
+table.st tr.hid td{opacity:.5}
+.ready{color:var(--ok);font-weight:bold}.cool{color:var(--warn)}.unk{color:var(--dim)}
+.tag{font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-left:4px}
+.bar{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:8px 0}
+.bar label{color:var(--dim);display:inline-flex;gap:5px;align-items:center}
+ul.ag{list-style:none;margin:0;padding:0;background:var(--panel);border-radius:8px}
+ul.ag li{padding:6px 10px;border-bottom:1px solid var(--line);display:flex;gap:10px;flex-wrap:wrap}
+ul.ag li.day{background:#22262d;color:var(--accent);font-size:13px;padding:3px 10px}
+ul.ag li.proj{color:var(--dim)}ul.ag .tm{font-weight:bold;min-width:44px}
+.month{margin-bottom:22px}.month h3{margin:0 0 6px;font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.dow{color:var(--dim);font-size:12px;text-align:center;padding:2px}
+.dow.sun,.day.sun .dn{color:#ff8f8f}.dow.sat,.day.sat .dn{color:#8fb6ff}
+.cell{background:var(--panel);border:1px solid var(--line);border-radius:6px;min-height:92px;padding:4px 5px;min-width:0}
+.cell.blank{background:none;border-color:transparent}
+.cell.past{opacity:.5}
+.cell.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.dn{font-size:12px;color:var(--dim)}.cell.sun .dn{color:#ff8f8f}.cell.sat .dn{color:#8fb6ff}
+.cell.today .dn{color:var(--accent);font-weight:bold}
+.chip{display:block;margin-top:3px;padding:1px 5px;border-radius:4px;font-size:12px;line-height:1.35;border-left:3px solid var(--c,#888);background:#262a32;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip.proj{background:none;border:1px dashed #4a505c;border-left:3px dashed var(--c,#888);color:var(--dim)}
+.chip.done,.chip.now{background:#1d3324}.chip.now{color:var(--ok)}
+.chip.log{background:#2a2540;border-left-style:double}
+.chip .lg{display:inline}.chip .sh{display:none}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:6px 0 12px;color:var(--dim);font-size:13px}
+.legend .chip{display:inline-block;margin:0 4px 0 0;vertical-align:middle}
+form.lf{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--panel);border-radius:8px;padding:10px}
+form.lf input[type=text]{flex:1;min-width:140px}
+ul.help{color:var(--dim);padding-left:20px}ul.help li{margin:3px 0}
+@media (max-width:700px){
+  main{padding:10px}.cell{min-height:58px;padding:2px}.grid{gap:2px}
+  .chip{font-size:10px;padding:1px 2px;border-left-width:2px}.chip .lg{display:none}.chip .sh{display:inline}
+  table.st th,table.st td{padding:6px 7px}
+}
+</style>
+</head>
+<body>
+<nav class="qm">
+  <a href="#now">지금<span class="cnt" id="navCnt" hidden></span></a><a href="#agenda">일정</a><a href="#cal">달력</a><a href="#log">제작 기록</a><a href="#set">설정</a><a href="#help">읽는 법</a>
+  <span class="sp"></span><span class="sub" id="clock"></span>
+</nav>
+<div id="flash"></div>
+<main>
+<h1>제조 쿨타임 달력</h1>
+<div class="sub" id="meta"></div>
+<div class="note" id="stale" hidden></div>
+
+<h2 id="now">지금 상태</h2>
+<div id="readyBox"></div>
+<div class="bar">
+  <button id="alarmBtn" class="pri"></button>
+  <button id="icsBtn" title="다가오는 준비 시각을 휴대폰 달력 일정(알림 포함)으로 저장">달력 앱에 추가 (.ics)</button>
+  <span class="sub" id="alarmInfo"></span>
+</div>
+<div class="scroll"><table class="st"><thead><tr><th>캐릭터</th><th>제조 기술</th><th>상태</th><th>준비되는 때</th><th>쿨타임</th><th></th></tr></thead><tbody id="stBody"></tbody></table></div>
+
+<h2 id="agenda">다가오는 일정</h2>
+<ul class="ag" id="agBody"></ul>
+
+<h2 id="cal">달력</h2>
+<div class="bar">
+  <button data-act="prev" title="이전 달">◀</button><button data-act="thismonth">이번 달</button><button data-act="next" title="다음 달">▶</button>
+  <label>표시 <select id="months"><option value="1">1개월</option><option value="2">2개월</option><option value="3">3개월</option></select></label>
+</div>
+<div class="legend">
+  <span><span class="chip" style="--c:#aaa"><b>21:13</b></span>쿨타임 끝남 (기록)</span>
+  <span><span class="chip done" style="--c:#aaa"><b>21:13</b></span>이미 끝남 = 제작 가능</span>
+  <span><span class="chip proj" style="--c:#aaa"><b>20:13</b></span>예상</span>
+  <span><span class="chip log" style="--c:#aaa"><b>✔ 20:13</b></span>내가 적은 제작 기록</span>
+</div>
+<div id="calBody"></div>
+
+<h2 id="log">제작 기록</h2>
+<form class="lf" id="logForm">
+  <select id="lfItem"></select>
+  <input type="datetime-local" id="lfTime">
+  <label>수량 <input type="number" id="lfQty" min="1" value="1"></label>
+  <input type="text" id="lfMemo" placeholder="메모 (선택)" maxlength="80">
+  <button class="pri" type="submit">기록</button>
+</form>
+<div class="sub" style="margin:6px 2px">기록하면 그 시각부터 쿨타임이 다시 도는 것으로 계산합니다(게임 기록보다 나중 것일 때). 기록은 이 기기의 브라우저에만 저장됩니다.</div>
+<div class="sub" id="logSum" style="margin:6px 2px"></div>
+<div class="scroll"><table class="st"><thead><tr><th>때</th><th>캐릭터</th><th>제조 기술</th><th>수량</th><th>메모</th><th></th></tr></thead><tbody id="logBody"></tbody></table></div>
+<div class="bar">
+  <button data-act="export">내보내기 (파일)</button>
+  <button data-act="import">가져오기</button><input type="file" id="impFile" accept="application/json,.json" hidden>
+  <span class="sub">다른 기기로 옮길 때: 기록과 설정을 파일로 내보내 그 기기에서 가져옵니다.</span>
+</div>
+
+<h2 id="set">아이템별 설정</h2>
+<div class="scroll"><table class="st"><thead><tr><th>캐릭터 · 제조 기술</th><th>표시</th><th>알람</th><th>알람 시점</th><th>예상</th><th>사용 시점 (예상용)</th><th></th></tr></thead><tbody id="setBody"></tbody></table></div>
+<form class="lf" id="addForm" style="margin-top:10px">
+  <span class="sub">항목 직접 추가</span>
+  <input type="text" id="addName" placeholder="캐릭터 이름" maxlength="30" list="charNames"><datalist id="charNames"></datalist>
+  <select id="addCraft"></select>
+  <button type="submit">추가</button>
+</form>
+<div class="sub" style="margin:6px 2px">게임 기록에 없는 캐릭터·기술을 직접 넣어 제작 기록만으로 쿨타임을 따라갈 수 있습니다.</div>
+
+<h2 id="help">읽는 법</h2>
+<ul class="help">
+  <li>자료는 자작 애드온 CraftReady 가 계정 공용으로 남긴 기록(캐릭터별 쿨타임 종료 시각)입니다. 게임에서 <b>/reload 하거나 로그아웃</b>한 뒤 PC에서 생성 스크립트를 <code>--publish</code>로 돌리면 이 페이지가 갱신됩니다. 페이지 혼자서는 게임 상태를 알 수 없습니다.</li>
+  <li>그 사이에 제작한 것은 <b>제작 기록</b>(상태 표의 "제작함" 버튼 또는 기록 양식)으로 남기면 그 시각 + 쿨타임 길이로 다시 계산합니다. 게임 기록이 더 나중 것이면 게임 기록을 따릅니다. 아케이나이트·군단석·원소 변환식은 쿨타임을 함께 쓰므로 하나를 기록하면 나머지도 같이 쿨타임에 들어갑니다.</li>
+  <li><b>제작 기록·설정은 이 기기의 브라우저에만 저장</b>됩니다(서버 없음). PC와 휴대폰은 따로이며, "내보내기/가져오기"로 옮길 수 있습니다. 브라우저 자료를 지우면 함께 사라집니다.</li>
+  <li><b>알람</b>: "알람 켜기"를 누르면 제작 가능해질 때(또는 설정한 N분 전에) 소리·진동·화면 알림을 냅니다. <b>이 페이지가 열려 있는 동안에만</b> 울립니다(브라우저를 닫거나 휴대폰 화면이 꺼지면 울리지 않을 수 있음). 닫혀 있던 동안 준비된 것은 다음에 열 때 한 번 알려 줍니다. 페이지를 닫아도 알림을 받으려면 "달력 앱에 추가 (.ics)"로 휴대폰 달력에 일정을 넣으세요(알람이 켜진 항목만, 예상 포함 30일치).</li>
+  <li>달력의 점선 칸은 <b>예상</b>입니다. 항목마다 "끝나자마자 다시 쓴다" 또는 "매일 N시에 쓴다"고 가정하고 쿨타임 길이를 더해 이어 간 것입니다. 쿨타임 12시간 미만인 기술(1시간 변환식 등)은 예상을 넣지 않습니다.</li>
+  <li>쿨타임 길이(클라이언트 DB 기준): 철→금·미스릴→진은 각 1시간, 아케이나이트·군단석 47시간, 원소 변환식 23시간, 달빛 옷감 95시간, 소금 정제기 71시간. 시각은 이 기기의 현지 시각입니다.</li>
+</ul>
+</main>
+<script id="data" type="application/json">{"generated":1795141209,"saved":1795131646,"crafts":{"s11479":{"n":"변환식: 철을 금으로","s":"금","p":"연금술","h":1,"g":null,"off":false,"o":0},"s11480":{"n":"변환식: 미스릴을 진은으로","s":"진은","p":"연금술","h":1,"g":null,"off":false,"o":1},"s17187":{"n":"변환식: 아케이나이트","s":"아케","p":"연금술","h":47,"g":"transmute","off":false,"o":2},"s1317279":{"n":"변환식: 군단석","s":"군단석","p":"연금술","h":47,"g":"transmute","off":true,"o":3},"s25146":{"n":"변환식: 자연의 불꽃","s":"불꽃","p":"연금술","h":0.16666666666666666,"g":"transmute","off":true,"o":4},"s17559":{"n":"변환식: 바람을 불로","s":"바람→불","p":"연금술","h":23,"g":"transmute","off":true,"o":5},"s17560":{"n":"변환식: 불을 대지로","s":"불→대지","p":"연금술","h":23,"g":"transmute","off":true,"o":6},"s17561":{"n":"변환식: 대지를 물로","s":"대지→물","p":"연금술","h":23,"g":"transmute","off":true,"o":7},"s17562":{"n":"변환식: 물을 바람으로","s":"물→바람","p":"연금술","h":23,"g":"transmute","off":true,"o":8},"s17563":{"n":"변환식: 불사를 물로","s":"불사→물","p":"연금술","h":23,"g":"transmute","off":true,"o":9},"s17564":{"n":"변환식: 물을 불사로","s":"물→불사","p":"연금술","h":23,"g":"transmute","off":true,"o":10},"s17565":{"n":"변환식: 생명을 대지로","s":"생명→대지","p":"연금술","h":23,"g":"transmute","off":true,"o":11},"s17566":{"n":"변환식: 대지를 생명으로","s":"대지→생명","p":"연금술","h":23,"g":"transmute","off":true,"o":12},"s18560":{"n":"달빛 옷감","s":"달빛","p":"재봉술","h":95,"g":null,"off":false,"o":13},"i15846":{"n":"소금 정제기","s":"소금","p":"가죽세공","h":71,"g":null,"off":false,"o":14}},"chars":[{"key":"c1","name":"캐릭터 1","realm":"","cls":"SHAMAN","updated":1795127071,"crafts":[{"k":"s11479","v":0},{"k":"s11480","v":0},{"k":"s17187","v":1795194781},{"k":"i15846","v":1795339146}]}]}</script>
+<script>
+(function(){
+"use strict";
+var DATA=JSON.parse(document.getElementById("data").textContent);
+var CLS={WARRIOR:"#C69B6D",PALADIN:"#F48CBA",HUNTER:"#AAD372",ROGUE:"#FFF468",PRIEST:"#FFFFFF",SHAMAN:"#0070DD",MAGE:"#3FC7EB",WARLOCK:"#8788EE",DRUID:"#FF7C0A"};
+var DOW=["일","월","화","수","목","금","토"];
+var KEY="craftcal:v2";
+var ST={months:2,alarmOn:false,items:{},custom:[],log:[],alerted:{}};
+try{var s0=JSON.parse(localStorage.getItem(KEY)||"{}");for(var k0 in ST)if(k0 in s0&&s0[k0]!=null)ST[k0]=s0[k0];}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(ST));}catch(e){}}
+var view=new Date();view=new Date(view.getFullYear(),view.getMonth(),1);
+function $(id){return document.getElementById(id);}
+function nowSec(){return Date.now()/1000;}
+function p2(n){return (n<10?"0":"")+n;}
+function hm(d){return p2(d.getHours())+":"+p2(d.getMinutes());}
+function dayText(d){return (d.getMonth()+1)+"."+d.getDate()+" ("+DOW[d.getDay()]+")";}
+function full(t){var d=new Date(t*1000);return dayText(d)+" "+hm(d);}
+function esc(t){return String(t).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function dur(sec){sec=Math.max(0,Math.round(sec));var d=Math.floor(sec/86400),h=Math.floor(sec%86400/3600),m=Math.floor(sec%3600/60);
+  if(d)return d+"일 "+h+"시간";if(h)return h+"시간 "+m+"분";if(m)return m+"분";return sec+"초";}
+function cdText(h){return h>=1?h+"시간":Math.round(h*60)+"분";}
+
+// ---- 항목: 게임 기록의 (캐릭터, 기술) + 직접 추가한 것 ----
+function items(){
+  var out=[],seen={};
+  DATA.chars.forEach(function(ch){ch.crafts.forEach(function(c){var m=DATA.crafts[c.k];if(!m)return;
+    var it={id:ch.key+"|"+c.k,ch:ch,k:c.k,m:m,v:c.v,custom:false};seen[it.id]=1;out.push(it);});});
+  ST.custom.forEach(function(c){var m=DATA.crafts[c.k];if(!m)return;
+    var real=null;DATA.chars.forEach(function(ch){if(ch.name===c.name)real=ch;});
+    var ch=real||{key:"custom:"+c.name,name:c.name,realm:"",cls:"",updated:0};
+    var it={id:ch.key+"|"+c.k,ch:ch,k:c.k,m:m,v:0,custom:true,noData:true};
+    if(!seen[it.id]){seen[it.id]=1;out.push(it);}});
+  out.sort(function(a,b){return a.ch.name<b.ch.name?-1:a.ch.name>b.ch.name?1:a.m.o-b.m.o;});
+  return out;
+}
+function cfg(it){
+  var d={show:!it.m.off||it.custom,alarm:true,lead:0,proj:true,mode:"asap",hour:21},s=ST.items[it.id]||{};
+  for(var k in d)if(k in s)d[k]=s[k];
+  return d;
+}
+function setCfg(it,k,v){(ST.items[it.id]=ST.items[it.id]||{})[k]=v;save();}
+function color(it){return CLS[it.ch.cls]||"#9aa3b2";}
+function label(it){return it.ch.name+" · "+it.m.n;}
+
+// ---- 지금 적용되는 종료 시각: 게임 기록과 내 제작 기록 중 나중 것 ----
+// 돌려주는 exp: 0 = 준비됨(시각 모름), -1 = 쿨타임 중(끝나는 때 모름), 그 밖 = 끝나는 시각
+function effective(it){
+  var best=null;
+  ST.log.forEach(function(l){
+    if(l.ck!==it.ch.key)return;
+    var lm=DATA.crafts[l.k];if(!lm)return;
+    if(l.k!==it.k&&!(it.m.g&&lm.g===it.m.g))return;
+    if(l.t<=it.ch.updated)return;
+    if(!best||l.t>best.t)best={t:l.t,exp:l.t+lm.h*3600};
+  });
+  if(best)return {exp:Math.round(best.exp),src:"log",at:best.t};
+  return {exp:it.v,src:it.noData?"none":"data"};
+}
+function isReady(exp,now){return exp>=0&&exp<=now;}
+function useAt(t,c){
+  if(c.mode!=="daily")return t;
+  var d=new Date(t*1000),u=new Date(d.getFullYear(),d.getMonth(),d.getDate(),c.hour,0,0);
+  if(u.getTime()/1000<t)u=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1,c.hour,0,0);
+  return u.getTime()/1000;
+}
+function events(now,until,withLog){
+  var ev=[],chains={};
+  items().forEach(function(it){
+    var c=cfg(it);if(!c.show)return;
+    var e=effective(it);
+    if(e.exp>0)ev.push({t:e.exp,it:it,kind:e.exp<=now?"done":"end"});
+    else if(e.exp===0)ev.push({t:now,it:it,kind:"now"});
+    if(e.exp<0||it.m.h<12||!c.proj)return;
+    var id=it.ch.key+"|"+(it.m.g||it.k),cur=chains[id];
+    if(!cur||e.exp>cur.exp)chains[id]={it:it,exp:e.exp,c:c};
+  });
+  Object.keys(chains).forEach(function(id){
+    var ch=chains[id],t=Math.max(ch.exp,now),n=0;
+    while(n++<300){var u=useAt(t,ch.c);t=u+ch.it.m.h*3600;if(t>until)break;ev.push({t:t,it:ch.it,kind:"proj",use:u});}
+  });
+  if(withLog)ST.log.forEach(function(l){ev.push({t:l.t,kind:"log",log:l});});
+  ev.sort(function(a,b){return a.t-b.t;});
+  return ev;
+}
+
+// ---- 제작 기록 ----
+function addLog(it,t,qty,memo){
+  ST.log.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),ck:it.ch.key,cn:it.ch.name,k:it.k,n:it.m.n,
+    t:Math.round(t),qty:Math.max(1,Math.round(qty)||1),memo:String(memo||"").slice(0,80)});
+  ST.log.sort(function(a,b){return a.t-b.t;});save();
+}
+function findItem(id){var r=null;items().forEach(function(it){if(it.id===id)r=it;});return r;}
+
+// ---- 알람 ----
+var audio=null,swReg=null,flashList=[];
+function beep(){
+  try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();if(audio.state==="suspended")audio.resume();
+    [0,0.25,0.5].forEach(function(o){var os=audio.createOscillator(),g=audio.createGain();os.frequency.value=880;os.connect(g);g.connect(audio.destination);
+      var t=audio.currentTime+o;g.gain.setValueAtTime(0.0001,t);g.gain.exponentialRampToValueAtTime(0.25,t+0.02);g.gain.exponentialRampToValueAtTime(0.0001,t+0.2);os.start(t);os.stop(t+0.22);});
+  }catch(e){}
+}
+function notify(title,body){
+  try{if(!("Notification" in window)||Notification.permission!=="granted")return;
+    if(swReg&&swReg.showNotification)swReg.showNotification(title,{body:body,tag:"craftcal",renotify:true});
+    else new Notification(title,{body:body});}catch(e){}
+}
+function showFlash(){
+  var f=$("flash");if(!flashList.length){f.style.display="none";return;}
+  f.innerHTML='<button data-act="flashok">확인</button><b>알람</b> '+flashList.map(esc).join("<br>");f.style.display="block";
+}
+function alarmKey(e,it){return e.exp>0?String(e.exp):"0:"+it.ch.updated+":"+DATA.generated;}
+// 알람을 낼 항목을 찾아 한 번씩만 알린다. 돌려주는 값: 이번에 알린 글 목록
+function checkAlarms(now,quiet){
+  var fired=[];
+  items().forEach(function(it){
+    var c=cfg(it);if(!c.show||!c.alarm)return;
+    var e=effective(it);if(e.exp<0)return;
+    var key=alarmKey(e,it);
+    if(ST.alerted[it.id]===key)return;
+    if(e.exp>0&&now<e.exp-c.lead*60)return;
+    ST.alerted[it.id]=key;
+    fired.push(e.exp>now?label(it)+" — "+dur(e.exp-now)+" 뒤 제작 가능 ("+hm(new Date(e.exp*1000))+")":label(it)+" — 제작 가능");
+  });
+  if(fired.length){save();
+    if(!quiet&&ST.alarmOn){flashList=flashList.concat(fired);showFlash();beep();
+      try{if(navigator.vibrate)navigator.vibrate([200,100,200]);}catch(e){}
+      notify("제조 쿨타임",fired.join("\n"));}}
+  return fired;
+}
+function alarmUI(){
+  var perm=("Notification" in window)?Notification.permission:"unsupported";
+  $("alarmBtn").textContent=ST.alarmOn?"알람 끄기":"알람 켜기";
+  $("alarmBtn").className=ST.alarmOn?"":"pri";
+  $("alarmInfo").textContent=!ST.alarmOn?"꺼짐 (제작 가능 목록은 위에 계속 표시됩니다)":
+    "켜짐 · 소리"+(navigator.vibrate?"·진동":"")+(perm==="granted"?"·화면 알림":perm==="denied"?" (화면 알림은 브라우저에서 차단됨)":"")+" · 이 페이지가 열려 있는 동안";
+}
+function icsText(now){
+  function z(t){var d=new Date(t*1000);return d.getUTCFullYear()+p2(d.getUTCMonth()+1)+p2(d.getUTCDate())+"T"+p2(d.getUTCHours())+p2(d.getUTCMinutes())+p2(d.getUTCSeconds())+"Z";}
+  var L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//CraftReady//Craft Calendar//KO","CALSCALE:GREGORIAN"],n=0;
+  events(now,now+30*86400,false).forEach(function(e){
+    if(e.t<=now||(e.kind!=="end"&&e.kind!=="proj"))return;var c=cfg(e.it);if(!c.alarm)return;
+    L.push("BEGIN:VEVENT","UID:"+e.it.k+"-"+Math.round(e.t)+"-"+(n++)+"@craftcal","DTSTAMP:"+z(now),"DTSTART:"+z(e.t),"DTEND:"+z(e.t+900),
+      "SUMMARY:"+(e.kind==="proj"?"(예상) ":"")+"제작 가능: "+label(e.it).replace(/[,;\\]/g," "),
+      "BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:제작 가능","TRIGGER:-PT"+Math.max(0,Math.round(c.lead))+"M","END:VALARM","END:VEVENT");
+  });
+  L.push("END:VCALENDAR");return {text:L.join("\r\n"),count:n};
+}
+function download(name,text,type){
+  var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:type}));a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1000);
+}
+
+// ---- 그리기 ----
+function renderNow(now){
+  var its=items(),ready=[],rows=[];
+  its.forEach(function(it){
+    var c=cfg(it),e=effective(it),st,when,o;
+    if(e.exp<0){st='<span class="unk">쿨타임 중 (끝나는 때 모름)</span>';when="–";o=2e12;}
+    else if(e.exp<=now){st='<span class="ready">제작 가능</span>';when=e.exp>0?full(e.exp)+"부터":it.noData?"기록 없음":"–";o=0;if(c.show)ready.push(it);}
+    else{st='<span class="cool">'+dur(e.exp-now)+" 남음</span>";when=full(e.exp);o=e.exp;}
+    if(e.src==="log")when+='<span class="tag">내 기록</span>';
+    rows.push({o:o+(c.show?0:3e12),h:'<tr class="'+(c.show?"":"hid")+'"><td style="color:'+color(it)+'">'+esc(it.ch.name)+"</td><td>"+esc(it.m.n)+(c.show?"":'<span class="tag">숨김</span>')+
+      "</td><td>"+st+"</td><td>"+when+"</td><td>"+cdText(it.m.h)+'</td><td><button class="sm" data-act="made" data-id="'+esc(it.id)+'">제작함</button></td></tr>'});
+  });
+  rows.sort(function(a,b){return a.o-b.o;});
+  $("stBody").innerHTML=rows.length?rows.map(function(r){return r.h;}).join(""):'<tr><td colspan="6" class="unk">기록된 제조 기술이 없습니다. "설정"에서 직접 추가하거나, 게임에서 접속 후 /reload 하고 다시 생성하세요.</td></tr>';
+  var box=$("readyBox");
+  if(ready.length){box.className="";box.innerHTML="<h3>지금 제작 가능 "+ready.length+"개</h3>"+ready.map(function(it){
+    return '<div class="rd"><span class="nm"><b style="color:'+color(it)+'">'+esc(it.ch.name)+"</b> · "+esc(it.m.n)+'</span><button class="sm pri" data-act="made" data-id="'+esc(it.id)+'">제작함 (지금 기록)</button></div>';}).join("");}
+  else{box.className="none";box.textContent="지금 제작 가능한 것이 없습니다.";}
+  $("navCnt").hidden=!ready.length;$("navCnt").textContent=ready.length;
+  document.title=(ready.length?"("+ready.length+") ":"")+"제조 쿨타임 달력";
+  var ev=events(now,now+14*86400,false).filter(function(e){return e.t>now;}).slice(0,40),h="",last="";
+  ev.forEach(function(e){var d=new Date(e.t*1000),dk=dayText(d);
+    if(dk!==last){h+='<li class="day">'+dk+"</li>";last=dk;}
+    h+='<li class="'+e.kind+'"><span class="tm">'+hm(d)+'</span><span style="color:'+color(e.it)+'">'+esc(e.it.ch.name)+"</span><span>"+esc(e.it.m.n)+"</span><span class=\"sub\">"+
+      (e.kind==="proj"?"예상 ("+full(e.use)+"에 쓰면)":dur(e.t-now)+" 뒤")+"</span></li>";});
+  $("agBody").innerHTML=h||'<li class="sub">앞으로 14일 안에 끝나는 쿨타임이 없습니다.</li>';
+  $("clock").textContent=full(now);
+}
+function renderCal(now){
+  var last=new Date(view.getFullYear(),view.getMonth()+ST.months,1),ev=events(now,last.getTime()/1000,true),byDay={};
+  ev.forEach(function(e){var d=new Date(e.t*1000),k=d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate();(byDay[k]=byDay[k]||[]).push(e);});
+  var nd=new Date(now*1000),todayKey=nd.getFullYear()+"-"+nd.getMonth()+"-"+nd.getDate(),today0=new Date(nd.getFullYear(),nd.getMonth(),nd.getDate()).getTime();
+  var multi={};items().forEach(function(it){multi[it.ch.key]=1;});multi=Object.keys(multi).length>1;
+  var out="";
+  for(var m=0;m<ST.months;m++){
+    var ms=new Date(view.getFullYear(),view.getMonth()+m,1),days=new Date(ms.getFullYear(),ms.getMonth()+1,0).getDate();
+    out+='<div class="month"><h3>'+ms.getFullYear()+"년 "+(ms.getMonth()+1)+'월</h3><div class="grid">';
+    DOW.forEach(function(w,i){out+='<div class="dow'+(i===0?" sun":i===6?" sat":"")+'">'+w+"</div>";});
+    for(var b=0;b<ms.getDay();b++)out+='<div class="cell blank"></div>';
+    for(var d=1;d<=days;d++){
+      var dt=new Date(ms.getFullYear(),ms.getMonth(),d),k=dt.getFullYear()+"-"+dt.getMonth()+"-"+d,w=dt.getDay();
+      out+='<div class="cell'+(w===0?" sun":w===6?" sat":"")+(k===todayKey?" today":dt.getTime()<today0?" past":"")+'"><div class="dn">'+d+"</div>";
+      (byDay[k]||[]).forEach(function(e){
+        var td=new Date(e.t*1000),tip,lab,col,nm,sh;
+        if(e.kind==="log"){var l=e.log,lm=DATA.crafts[l.k];col="#b9a7ff";nm=(multi?l.cn+" · ":"")+l.n;sh=lm?lm.s:l.n;lab="✔ "+hm(td);
+          tip=l.cn+" · "+l.n+"\n"+full(l.t)+" 제작 기록"+(l.qty>1?" ×"+l.qty:"")+(l.memo?"\n"+l.memo:"");}
+        else{col=color(e.it);nm=(multi?e.it.ch.name+" · ":"")+e.it.m.n;sh=e.it.m.s;tip=label(e.it)+"\n";
+          if(e.kind==="now"){lab="가능";tip+="지금 제작 가능";}
+          else{lab=hm(td);tip+=e.kind==="proj"?"예상: "+full(e.use)+"에 쓰면 "+full(e.t)+"에 다시 준비":e.kind==="done"?full(e.t)+"에 쿨타임 끝남 (제작 가능)":full(e.t)+"에 쿨타임 끝남 ("+dur(e.t-now)+" 남음)";}}
+        out+='<span class="chip '+e.kind+'" style="--c:'+col+'" title="'+esc(tip)+'"><b>'+lab+'</b> <span class="lg">'+esc(nm)+'</span><span class="sh">'+esc(sh)+"</span></span>";
+      });
+      out+="</div>";
+    }
+    out+="</div></div>";
+  }
+  $("calBody").innerHTML=out;
+}
+function renderLog(){
+  var its=items(),sel=$("lfItem"),keep=sel.value;
+  sel.innerHTML=its.map(function(it){return '<option value="'+esc(it.id)+'">'+esc(label(it))+"</option>";}).join("");
+  if(keep)sel.value=keep;
+  var sum={},h="";
+  ST.log.slice().reverse().forEach(function(l){var key=l.cn+" · "+l.n;sum[key]=(sum[key]||0)+l.qty;
+    h+="<tr><td>"+full(l.t)+"</td><td>"+esc(l.cn)+"</td><td>"+esc(l.n)+"</td><td>"+l.qty+"</td><td>"+esc(l.memo)+'</td><td><button class="sm" data-act="dellog" data-id="'+esc(l.id)+'">삭제</button></td></tr>';});
+  $("logBody").innerHTML=h||'<tr><td colspan="6" class="unk">아직 기록이 없습니다.</td></tr>';
+  $("logSum").textContent=ST.log.length?"합계 "+ST.log.length+"건 — "+Object.keys(sum).map(function(k){return k+" "+sum[k]+"개";}).join(", "):"";
+}
+function renderSet(){
+  var h="";
+  items().forEach(function(it){var c=cfg(it),id=esc(it.id),can=it.m.h>=12;
+    function cb(k){return '<input type="checkbox" data-set="'+k+'" data-id="'+id+'"'+(c[k]?" checked":"")+">";}
+    h+='<tr><td><b style="color:'+color(it)+'">'+esc(it.ch.name)+"</b> · "+esc(it.m.n)+(it.custom?'<span class="tag">직접 추가</span>':"")+"</td><td>"+cb("show")+"</td><td>"+cb("alarm")+
+      '</td><td><input type="number" min="0" max="1440" data-set="lead" data-id="'+id+'" value="'+c.lead+'"> 분 전</td><td>'+(can?cb("proj"):'<span class="unk">–</span>')+"</td><td>"+
+      (can?'<select data-set="mode" data-id="'+id+'"><option value="asap"'+(c.mode==="asap"?" selected":"")+'>끝나자마자</option><option value="daily"'+(c.mode==="daily"?" selected":"")+'>매일 정해진 시각</option></select> '+
+        (c.mode==="daily"?'<input type="number" min="0" max="23" data-set="hour" data-id="'+id+'" value="'+c.hour+'"> 시':""):'<span class="unk">–</span>')+
+      "</td><td>"+(it.custom?'<button class="sm" data-act="delitem" data-id="'+id+'">빼기</button>':"")+"</td></tr>";});
+  $("setBody").innerHTML=h||'<tr><td colspan="7" class="unk">항목이 없습니다.</td></tr>';
+  $("addCraft").innerHTML=Object.keys(DATA.crafts).sort(function(a,b){return DATA.crafts[a].o-DATA.crafts[b].o;}).map(function(k){return '<option value="'+k+'">'+esc(DATA.crafts[k].n)+"</option>";}).join("");
+  var names={};items().forEach(function(it){names[it.ch.name]=1;});
+  $("charNames").innerHTML=Object.keys(names).map(function(n){return '<option value="'+esc(n)+'">';}).join("");
+}
+function renderAll(){var now=nowSec();renderNow(now);renderCal(now);renderLog();renderSet();alarmUI();$("months").value=ST.months;}
+function localISO(t){var d=new Date(t*1000);return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate())+"T"+hm(d);}
+function meta(){
+  var parts=DATA.chars.map(function(c){return esc(c.name)+" ("+(c.realm?esc(c.realm)+", ":"")+"기록 "+full(c.updated)+")";});
+  $("meta").innerHTML="게임 기록 "+new Date(DATA.saved*1000).getFullYear()+"."+full(DATA.saved)+" · 페이지 생성 "+full(DATA.generated)+" · 캐릭터 "+DATA.chars.length+"명"+(parts.length?": "+parts.join(", "):"");
+  var age=nowSec()-DATA.saved;
+  if(age>43200){$("stale").hidden=false;$("stale").textContent="게임 기록이 "+dur(age)+" 전 것입니다. 그 뒤에 제작한 것은 \"제작함\"으로 기록해 두면 쿨타임에 반영됩니다.";}
+}
+
+// ---- 조작 ----
+document.addEventListener("click",function(ev){
+  var b=ev.target.closest?ev.target.closest("[data-act]"):null;if(!b)return;
+  var act=b.getAttribute("data-act"),id=b.getAttribute("data-id"),it;
+  if(act==="made"){it=findItem(id);if(it){addLog(it,nowSec(),1,"");renderAll();}}
+  else if(act==="dellog"){ST.log=ST.log.filter(function(l){return l.id!==id;});save();renderAll();}
+  else if(act==="delitem"){it=findItem(id);if(it){ST.custom=ST.custom.filter(function(c){return !(c.k===it.k&&c.name===it.ch.name);});delete ST.items[id];save();renderAll();}}
+  else if(act==="prev"||act==="next"){view=new Date(view.getFullYear(),view.getMonth()+(act==="prev"?-1:1),1);renderCal(nowSec());}
+  else if(act==="thismonth"){var n=new Date();view=new Date(n.getFullYear(),n.getMonth(),1);renderCal(nowSec());}
+  else if(act==="flashok"){flashList=[];showFlash();}
+  else if(act==="export"){download("craft-calendar-backup.json",JSON.stringify({craftcal:2,items:ST.items,custom:ST.custom,log:ST.log}),"application/json");}
+  else if(act==="import"){$("impFile").click();}
+});
+document.addEventListener("change",function(ev){
+  var t=ev.target,k=t.getAttribute&&t.getAttribute("data-set");if(!k)return;
+  var it=findItem(t.getAttribute("data-id"));if(!it)return;
+  var v;
+  if(t.type==="checkbox")v=t.checked;
+  else if(k==="lead"){v=Math.round(+t.value);v=v>=0&&v<=1440?v:0;}
+  else if(k==="hour"){v=Math.round(+t.value);v=v>=0&&v<=23?v:21;}
+  else v=t.value==="daily"?"daily":"asap";
+  setCfg(it,k,v);checkAlarms(nowSec(),false);renderAll();
+});
+$("months").onchange=function(){ST.months=+this.value||2;save();renderCal(nowSec());};
+$("logForm").onsubmit=function(ev){ev.preventDefault();
+  var it=findItem($("lfItem").value),t=new Date($("lfTime").value).getTime()/1000;
+  if(!it||!isFinite(t))return;
+  addLog(it,t,+$("lfQty").value,$("lfMemo").value);$("lfMemo").value="";$("lfQty").value=1;$("lfTime").value=localISO(nowSec());renderAll();};
+$("addForm").onsubmit=function(ev){ev.preventDefault();
+  var name=$("addName").value.trim(),k=$("addCraft").value;if(!name||!DATA.crafts[k])return;
+  if(!ST.custom.some(function(c){return c.name===name&&c.k===k;}))ST.custom.push({name:name,k:k});
+  save();$("addName").value="";renderAll();};
+$("impFile").onchange=function(){var f=this.files&&this.files[0];if(!f)return;var r=new FileReader();
+  r.onload=function(){try{var d=JSON.parse(r.result);if(!d||d.craftcal!==2)throw 0;
+    var have={};ST.log.forEach(function(l){have[l.id]=1;});
+    (d.log||[]).forEach(function(l){if(l&&l.id&&!have[l.id]&&isFinite(l.t)&&l.k)ST.log.push(l);});
+    ST.log.sort(function(a,b){return a.t-b.t;});
+    (d.custom||[]).forEach(function(c){if(c&&c.name&&c.k&&!ST.custom.some(function(x){return x.name===c.name&&x.k===c.k;}))ST.custom.push({name:String(c.name),k:String(c.k)});});
+    if(d.items&&typeof d.items==="object")for(var k in d.items)ST.items[k]=d.items[k];
+    save();renderAll();flashList=["가져오기 완료: 기록 "+ST.log.length+"건"];showFlash();
+  }catch(e){flashList=["가져오기 실패: 이 페이지에서 내보낸 파일이 아닙니다."];showFlash();}};
+  r.readAsText(f);this.value="";};
+$("alarmBtn").onclick=function(){
+  ST.alarmOn=!ST.alarmOn;save();
+  if(ST.alarmOn){beep();
+    try{if("Notification" in window&&Notification.permission==="default"){var p=Notification.requestPermission(function(){alarmUI();});if(p&&p.then)p.then(alarmUI);}}catch(e){}}
+  alarmUI();};
+$("icsBtn").onclick=function(){var r=icsText(nowSec());
+  if(!r.count){flashList=["달력 앱에 넣을 일정이 없습니다(알람이 켜진 항목 중 앞으로 끝나는 쿨타임 없음)."];showFlash();return;}
+  download("craft-cooldowns.ics",r.text,"text/calendar");};
+try{if("serviceWorker" in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").then(function(r){swReg=r;}).catch(function(){});}catch(e){}
+
+window.CraftCal={DATA:DATA,ST:ST,items:items,cfg:cfg,setCfg:setCfg,effective:effective,events:events,addLog:addLog,checkAlarms:checkAlarms,icsText:icsText,renderAll:renderAll,findItem:findItem};
+$("lfTime").value=localISO(nowSec());
+meta();renderAll();
+// 열었을 때 이미 준비돼 있는 것: 알람이 켜져 있으면 한 번 알려 준다(목록은 위에 늘 보인다)
+checkAlarms(nowSec(),false);
+setInterval(function(){var now=nowSec();checkAlarms(now,false);renderNow(now);},15000);
+setInterval(function(){renderCal(nowSec());},600000);
+document.addEventListener("visibilitychange",function(){if(!document.hidden){var now=nowSec();checkAlarms(now,false);renderNow(now);}});
+})();
+</script>
+</body>
+</html>
