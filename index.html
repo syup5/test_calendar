@@ -60,8 +60,9 @@ ul.ag li.proj{color:var(--dim)}ul.ag .tm{font-weight:bold;min-width:44px}
 .dn{font-size:12px;color:var(--dim)}.cell.sun .dn{color:#ff8f8f}.cell.sat .dn{color:#8fb6ff}
 .cell.today .dn{color:var(--accent);font-weight:bold}
 .chip{display:block;margin-top:3px;padding:1px 5px;border-radius:4px;font-size:12px;line-height:1.35;border-left:3px solid var(--c,#888);background:#262a32;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.chip.proj{background:none;border:1px dashed #4a505c;border-left:3px dashed var(--c,#888);color:var(--dim)}
-.chip.done,.chip.now{background:#1d3324}.chip.hist{background:#20303c}.chip.now{color:var(--ok)}
+.chip{color:var(--c,#e4e6ea)}.legend .chip{color:var(--fg)}
+.chip.proj{opacity:.75;background:none;border:1px dashed #4a505c;border-left:3px dashed var(--c,#888)}
+.chip.done,.chip.now{background:#1d3324}.chip.hist{background:#20303c}
 .chip.log{background:#2a2540;border-left-style:double}
 .chip .lg{display:inline}.chip .sh{display:none}
 .legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:6px 0 12px;color:var(--dim);font-size:13px}
@@ -105,10 +106,10 @@ ul.help{color:var(--dim);padding-left:20px}ul.help li{margin:3px 0}
 <div id="calBody"></div>
 
 <h2 id="set">아이템별 설정</h2>
-<div class="scroll"><table class="st"><thead><tr><th>캐릭터 · 제조 기술</th><th>표시</th><th>알람</th><th>알람 시점</th><th>예상</th><th>사용 시점 (예상용)</th><th></th></tr></thead><tbody id="setBody"></tbody></table></div>
+<div class="scroll"><table class="st"><thead><tr><th>제조 기술</th><th>표시</th><th>알람</th><th>알람 시점</th><th>예상</th><th>사용 시점 (예상용)</th><th></th></tr></thead><tbody id="setBody"></tbody></table></div>
 <form class="lf" id="addForm" style="margin-top:10px">
   <span class="sub">항목 직접 추가</span>
-  <input type="text" id="addName" placeholder="캐릭터 이름" maxlength="30" list="charNames"><datalist id="charNames"></datalist>
+  <input type="text" id="addName" placeholder="캐릭터 이름 (선택)" maxlength="30">
   <select id="addCraft"></select>
   <button type="submit">추가</button>
 </form>
@@ -121,7 +122,7 @@ ul.help{color:var(--dim);padding-left:20px}ul.help li{margin:3px 0}
   <button id="icsBtn" title="다가오는 준비 시각을 휴대폰 달력 일정(알림 포함)으로 저장">달력 앱에 추가 (.ics)</button>
   <span class="sub" id="alarmInfo"></span>
 </div>
-<div class="scroll"><table class="st"><thead><tr><th>캐릭터</th><th>제조 기술</th><th>상태</th><th>준비되는 때</th><th>쿨타임</th><th></th></tr></thead><tbody id="stBody"></tbody></table></div>
+<div class="scroll"><table class="st"><thead><tr><th>제조 기술</th><th>상태</th><th>준비되는 때</th><th>쿨타임</th><th></th></tr></thead><tbody id="stBody"></tbody></table></div>
 
 <h2 id="agenda">다가오는 일정</h2>
 <ul class="ag" id="agBody"></ul>
@@ -135,7 +136,7 @@ ul.help{color:var(--dim);padding-left:20px}ul.help li{margin:3px 0}
 </form>
 <div class="sub" style="margin:6px 2px">기록하면 그 시각부터 쿨타임이 다시 도는 것으로 계산합니다(게임 기록보다 나중 것일 때). 기록은 이 기기의 브라우저에만 저장됩니다.</div>
 <div class="sub" id="logSum" style="margin:6px 2px"></div>
-<div class="scroll"><table class="st"><thead><tr><th>때</th><th>캐릭터</th><th>제조 기술</th><th>메모</th><th></th></tr></thead><tbody id="logBody"></tbody></table></div>
+<div class="scroll"><table class="st"><thead><tr><th>때</th><th>제조 기술</th><th>메모</th><th></th></tr></thead><tbody id="logBody"></tbody></table></div>
 <div class="bar">
   <button data-act="export">내보내기 (파일)</button>
   <button data-act="import">가져오기</button><input type="file" id="impFile" accept="application/json,.json" hidden>
@@ -149,11 +150,11 @@ ul.help{color:var(--dim);padding-left:20px}ul.help li{margin:3px 0}
   <li><b>제작 기록·설정은 이 기기의 브라우저에만 저장</b>됩니다(서버 없음). PC와 휴대폰은 따로이며, "내보내기/가져오기"로 옮길 수 있습니다. 브라우저 자료를 지우면 함께 사라집니다.</li>
   <li><b>알람</b>: "알람 켜기"를 누르면 제작 가능해질 때(또는 설정한 N분 전에) 소리·진동·화면 알림을 냅니다. <b>이 페이지가 열려 있는 동안에만</b> 울립니다(브라우저를 닫거나 휴대폰 화면이 꺼지면 울리지 않을 수 있음). 닫혀 있던 동안 준비된 것은 다음에 열 때 한 번 알려 줍니다. 페이지를 닫아도 알림을 받으려면 "달력 앱에 추가 (.ics)"로 휴대폰 달력에 일정을 넣으세요(알람이 켜진 항목만, 예상 포함 30일치).</li>
   <li>달력의 <b>날짜를 누르면</b> 그 날짜에 제조 기술과 시간을 적어 기록할 수 있고, 그 날 적은 기록을 지울 수도 있습니다. 지난 날짜에는 내가 적은 기록(✔)과, 생성 스크립트가 그동안 모아 둔 이전 쿨타임 종료 시각이 남습니다.</li>
-  <li>달력의 점선 칸은 <b>예상</b>입니다(처음에는 꺼져 있고 "설정"에서 항목마다 켭니다). 항목마다 "끝나자마자 다시 쓴다" 또는 "매일 N시에 쓴다"고 가정하고 쿨타임 길이를 더해 이어 간 것입니다. 쿨타임 12시간 미만인 기술(1시간 변환식 등)은 예상을 넣지 않습니다.</li>
-  <li>쿨타임 길이(클라이언트 DB 기준): 철→금·미스릴→진은 각 1시간, 아케이나이트·군단석 47시간, 원소 변환식 23시간, 달빛 옷감 95시간, 소금 정제기 71시간. 시각은 이 기기의 현지 시각입니다.</li>
+  <li>달력의 점선 칸은 <b>예상</b>입니다(처음에는 꺼져 있고 "설정"에서 항목마다 켭니다). 항목마다 "끝나자마자 다시 쓴다" 또는 "매일 N시에 쓴다"고 가정하고 쿨타임 길이를 더해 이어 간 것입니다. 쿨타임 12시간 미만인 기술은 예상을 넣지 않습니다.</li>
+  <li>쿨타임 길이(클라이언트 DB 기준): 아케인(아케이나이트 변환식)·군단석 변환식 47시간, 원소 변환식 23시간, 달빛 옷감 95시간, 소금(소금 정제기) 71시간. 글자색은 그 캐릭터의 직업 색입니다. 시각은 이 기기의 현지 시각입니다.</li>
 </ul>
 </main>
-<script id="data" type="application/json">{"generated":1795142261,"saved":1795131646,"crafts":{"s11479":{"n":"변환식: 철을 금으로","s":"금","p":"연금술","h":1,"g":null,"off":false,"d":true,"o":0},"s11480":{"n":"변환식: 미스릴을 진은으로","s":"진은","p":"연금술","h":1,"g":null,"off":false,"d":true,"o":1},"s17187":{"n":"변환식: 아케이나이트","s":"아케","p":"연금술","h":47,"g":"transmute","off":false,"d":false,"o":2},"s1317279":{"n":"변환식: 군단석","s":"군단석","p":"연금술","h":47,"g":"transmute","off":true,"d":false,"o":3},"s25146":{"n":"변환식: 자연의 불꽃","s":"불꽃","p":"연금술","h":0.16666666666666666,"g":"transmute","off":true,"d":false,"o":4},"s17559":{"n":"변환식: 바람을 불로","s":"바람→불","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":5},"s17560":{"n":"변환식: 불을 대지로","s":"불→대지","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":6},"s17561":{"n":"변환식: 대지를 물로","s":"대지→물","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":7},"s17562":{"n":"변환식: 물을 바람으로","s":"물→바람","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":8},"s17563":{"n":"변환식: 불사를 물로","s":"불사→물","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":9},"s17564":{"n":"변환식: 물을 불사로","s":"물→불사","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":10},"s17565":{"n":"변환식: 생명을 대지로","s":"생명→대지","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":11},"s17566":{"n":"변환식: 대지를 생명으로","s":"대지→생명","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":12},"s18560":{"n":"달빛 옷감","s":"달빛","p":"재봉술","h":95,"g":null,"off":false,"d":false,"o":13},"i15846":{"n":"소금 정제기","s":"소금","p":"가죽세공","h":71,"g":null,"off":false,"d":false,"o":14}},"chars":[{"key":"c1","name":"캐릭터 1","realm":"","cls":"SHAMAN","updated":1795127071,"crafts":[{"k":"s11479","v":0},{"k":"s11480","v":0},{"k":"s17187","v":1795194781},{"k":"i15846","v":1795339146}]}],"hist":[{"c":"c1","k":"s17187","t":1795194781},{"c":"c1","k":"i15846","t":1795339146}]}</script>
+<script id="data" type="application/json">{"generated":1795142525,"saved":1795131646,"crafts":{"s17187":{"n":"아케인","s":"아케인","p":"연금술","h":47,"g":"transmute","off":false,"d":false,"o":0},"s1317279":{"n":"변환식: 군단석","s":"군단석","p":"연금술","h":47,"g":"transmute","off":true,"d":false,"o":1},"s25146":{"n":"변환식: 자연의 불꽃","s":"불꽃","p":"연금술","h":0.16666666666666666,"g":"transmute","off":true,"d":false,"o":2},"s17559":{"n":"변환식: 바람을 불로","s":"바람→불","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":3},"s17560":{"n":"변환식: 불을 대지로","s":"불→대지","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":4},"s17561":{"n":"변환식: 대지를 물로","s":"대지→물","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":5},"s17562":{"n":"변환식: 물을 바람으로","s":"물→바람","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":6},"s17563":{"n":"변환식: 불사를 물로","s":"불사→물","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":7},"s17564":{"n":"변환식: 물을 불사로","s":"물→불사","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":8},"s17565":{"n":"변환식: 생명을 대지로","s":"생명→대지","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":9},"s17566":{"n":"변환식: 대지를 생명으로","s":"대지→생명","p":"연금술","h":23,"g":"transmute","off":true,"d":false,"o":10},"s18560":{"n":"달빛 옷감","s":"달빛","p":"재봉술","h":95,"g":null,"off":false,"d":false,"o":11},"i15846":{"n":"소금","s":"소금","p":"가죽세공","h":71,"g":null,"off":false,"d":false,"o":12}},"chars":[{"key":"c1","name":"캐릭터 1","realm":"","cls":"SHAMAN","updated":1795127071,"crafts":[{"k":"s17187","v":1795194781},{"k":"i15846","v":1795339146}]}],"hist":[{"c":"c1","k":"s17187","t":1795194781},{"c":"c1","k":"i15846","t":1795339146}]}</script>
 <script>
 (function(){
 "use strict";
@@ -197,7 +198,12 @@ function cfg(it){
 }
 function setCfg(it,k,v){(ST.items[it.id]=ST.items[it.id]||{})[k]=v;save();}
 function color(it){return CLS[it.ch.cls]||"#9aa3b2";}
-function label(it){return it.ch.name+" · "+it.m.n;}
+// 화면에 적는 이름: 기술 이름만(글자색이 직업 색). 같은 기술이 여러 캐릭터에 있으면 뒤에 번호를 붙여 구분한다.
+function label(it){var same=items().filter(function(x){return x.k===it.k;});
+  return same.length>1?it.m.n+" "+(same.map(function(x){return x.id;}).indexOf(it.id)+1):it.m.n;}
+function logItem(l){return findItem(l.ck+"|"+l.k);}
+function logName(l){var it=logItem(l);return it?label(it):((DATA.crafts[l.k]||{}).n||l.n);}
+function logColor(l){var it=logItem(l);return it?color(it):"#9aa3b2";}
 
 // ---- 지금 적용되는 종료 시각: 게임 기록과 내 제작 기록 중 나중 것 ----
 // 돌려주는 exp: 0 = 준비됨(시각 모름), -1 = 쿨타임 중(끝나는 때 모름), 그 밖 = 끝나는 시각
@@ -317,21 +323,21 @@ function renderNow(now){
     else if(e.exp<=now){st='<span class="ready">제작 가능</span>';when=e.exp>0?full(e.exp)+"부터":it.noData?"기록 없음":"–";o=0;if(c.show)ready.push(it);}
     else{st='<span class="cool">'+dur(e.exp-now)+" 남음</span>";when=full(e.exp);o=e.exp;}
     if(e.src==="log")when+='<span class="tag">내 기록</span>';
-    rows.push({o:o+(c.show?0:3e12),h:'<tr class="'+(c.show?"":"hid")+'"><td style="color:'+color(it)+'">'+esc(it.ch.name)+"</td><td>"+esc(it.m.n)+(c.show?"":'<span class="tag">숨김</span>')+
+    rows.push({o:o+(c.show?0:3e12),h:'<tr class="'+(c.show?"":"hid")+'"><td><b style="color:'+color(it)+'">'+esc(label(it))+"</b>"+(c.show?"":'<span class="tag">숨김</span>')+
       "</td><td>"+st+"</td><td>"+when+"</td><td>"+cdText(it.m.h)+'</td><td><button class="sm" data-act="made" data-id="'+esc(it.id)+'">제작함</button></td></tr>'});
   });
   rows.sort(function(a,b){return a.o-b.o;});
-  $("stBody").innerHTML=rows.length?rows.map(function(r){return r.h;}).join(""):'<tr><td colspan="6" class="unk">기록된 제조 기술이 없습니다. "설정"에서 직접 추가하거나, 게임에서 접속 후 /reload 하고 다시 생성하세요.</td></tr>';
+  $("stBody").innerHTML=rows.length?rows.map(function(r){return r.h;}).join(""):'<tr><td colspan="5" class="unk">기록된 제조 기술이 없습니다. "설정"에서 직접 추가하거나, 게임에서 접속 후 /reload 하고 다시 생성하세요.</td></tr>';
   var box=$("readyBox");
   if(ready.length){box.className="";box.innerHTML="<h3>지금 제작 가능 "+ready.length+"개</h3>"+ready.map(function(it){
-    return '<div class="rd"><span class="nm"><b style="color:'+color(it)+'">'+esc(it.ch.name)+"</b> · "+esc(it.m.n)+'</span><button class="sm pri" data-act="made" data-id="'+esc(it.id)+'">제작함 (지금 기록)</button></div>';}).join("");}
+    return '<div class="rd"><span class="nm"><b style="color:'+color(it)+'">'+esc(label(it))+'</b></span><button class="sm pri" data-act="made" data-id="'+esc(it.id)+'">제작함 (지금 기록)</button></div>';}).join("");}
   else{box.className="none";box.textContent="지금 제작 가능한 것이 없습니다.";}
   $("navCnt").hidden=!ready.length;$("navCnt").textContent=ready.length;
   document.title=(ready.length?"("+ready.length+") ":"")+"제조 쿨타임 달력";
   var ev=events(now,now+14*86400,false).filter(function(e){return e.t>now;}).slice(0,40),h="",last="";
   ev.forEach(function(e){var d=new Date(e.t*1000),dk=dayText(d);
     if(dk!==last){h+='<li class="day">'+dk+"</li>";last=dk;}
-    h+='<li class="'+e.kind+'"><span class="tm">'+hm(d)+'</span><span style="color:'+color(e.it)+'">'+esc(e.it.ch.name)+"</span><span>"+esc(e.it.m.n)+"</span><span class=\"sub\">"+
+    h+='<li class="'+e.kind+'"><span class="tm">'+hm(d)+'</span><span style="color:'+color(e.it)+'">'+esc(label(e.it))+"</span><span class=\"sub\">"+
       (e.kind==="proj"?"예상 ("+full(e.use)+"에 쓰면)":dur(e.t-now)+" 뒤")+"</span></li>";});
   $("agBody").innerHTML=h||'<li class="sub">앞으로 14일 안에 끝나는 쿨타임이 없습니다.</li>';
   $("clock").textContent=full(now);
@@ -352,9 +358,9 @@ function renderCal(now){
       out+='<div class="cell'+(w===0?" sun":w===6?" sat":"")+(k===todayKey?" today":dt.getTime()<today0?" past":"")+'" data-day="'+dt.getFullYear()+"-"+p2(dt.getMonth()+1)+"-"+p2(d)+'"><div class="dn">'+d+"</div>";
       (byDay[k]||[]).forEach(function(e){
         var td=new Date(e.t*1000),tip,lab,col,nm,sh;
-        if(e.kind==="log"){var l=e.log,lm=DATA.crafts[l.k];col="#b9a7ff";nm=(multi?l.cn+" · ":"")+l.n;sh=lm?lm.s:l.n;lab="✔ "+hm(td);
-          tip=l.cn+" · "+l.n+"\n"+full(l.t)+" 제작 기록"+(l.memo?"\n"+l.memo:"");}
-        else{col=color(e.it);nm=(multi?e.it.ch.name+" · ":"")+e.it.m.n;sh=e.it.m.s;tip=label(e.it)+"\n";
+        if(e.kind==="log"){var l=e.log,lm=DATA.crafts[l.k];col=logColor(l);nm=logName(l);sh=lm?lm.s:l.n;lab="✔ "+hm(td);
+          tip=logName(l)+"\n"+full(l.t)+" 제작 기록"+(l.memo?"\n"+l.memo:"");}
+        else{col=color(e.it);nm=label(e.it);sh=e.it.m.s;tip=label(e.it)+"\n";
           if(e.kind==="now"){lab="가능";tip+="지금 제작 가능";}
           else{lab=hm(td);tip+=e.kind==="hist"?full(e.t)+"에 쿨타임이 끝났던 이전 기록 (제작은 그 "+cdText(e.it.m.h)+" 전쯤)":e.kind==="proj"?"예상: "+full(e.use)+"에 쓰면 "+full(e.t)+"에 다시 준비":e.kind==="done"?full(e.t)+"에 쿨타임 끝남 (제작 가능)":full(e.t)+"에 쿨타임 끝남 ("+dur(e.t-now)+" 남음)";}}
         out+='<span class="chip '+e.kind+'" style="--c:'+col+'" title="'+esc(tip)+'"><b>'+lab+'</b> <span class="lg">'+esc(nm)+'</span><span class="sh">'+esc(sh)+"</span></span>";
@@ -367,36 +373,34 @@ function renderCal(now){
 }
 function renderLog(){
   var its=items(),sel=$("lfItem"),keep=sel.value;
-  sel.innerHTML=its.map(function(it){return '<option value="'+esc(it.id)+'">'+esc(label(it))+"</option>";}).join("");
+  sel.innerHTML=its.map(function(it){return '<option style="color:'+color(it)+'" value="'+esc(it.id)+'">'+esc(label(it))+"</option>";}).join("");
   if(keep)sel.value=keep;
   var sum={},h="";
-  ST.log.slice().reverse().forEach(function(l){var key=l.cn+" · "+l.n;sum[key]=(sum[key]||0)+1;
-    h+="<tr><td>"+full(l.t)+"</td><td>"+esc(l.cn)+"</td><td>"+esc(l.n)+"</td><td>"+esc(l.memo)+'</td><td><button class="sm" data-act="dellog" data-id="'+esc(l.id)+'">삭제</button></td></tr>';});
-  $("logBody").innerHTML=h||'<tr><td colspan="5" class="unk">아직 기록이 없습니다.</td></tr>';
+  ST.log.slice().reverse().forEach(function(l){var key=logName(l);sum[key]=(sum[key]||0)+1;
+    h+="<tr><td>"+full(l.t)+'</td><td><b style="color:'+logColor(l)+'">'+esc(logName(l))+"</b></td><td>"+esc(l.memo)+'</td><td><button class="sm" data-act="dellog" data-id="'+esc(l.id)+'">삭제</button></td></tr>';});
+  $("logBody").innerHTML=h||'<tr><td colspan="4" class="unk">아직 기록이 없습니다.</td></tr>';
   $("logSum").textContent=ST.log.length?"합계 "+ST.log.length+"건 — "+Object.keys(sum).map(function(k){return k+" "+sum[k]+"회";}).join(", "):"";
 }
 function renderSet(){
   var h="";
   items().forEach(function(it){var c=cfg(it),id=esc(it.id),can=it.m.h>=12;
     function cb(k){return '<input type="checkbox" data-set="'+k+'" data-id="'+id+'"'+(c[k]?" checked":"")+">";}
-    h+='<tr><td><b style="color:'+color(it)+'">'+esc(it.ch.name)+"</b> · "+esc(it.m.n)+(it.custom?'<span class="tag">직접 추가</span>':"")+"</td><td>"+cb("show")+"</td><td>"+cb("alarm")+
+    h+='<tr><td><b style="color:'+color(it)+'">'+esc(label(it))+"</b>"+(it.custom?'<span class="tag">직접 추가</span>':"")+"</td><td>"+cb("show")+"</td><td>"+cb("alarm")+
       '</td><td><input type="number" min="0" max="1440" data-set="lead" data-id="'+id+'" value="'+c.lead+'"> 분 전</td><td>'+(can?cb("proj"):'<span class="unk">–</span>')+"</td><td>"+
       (can?'<select data-set="mode" data-id="'+id+'"><option value="asap"'+(c.mode==="asap"?" selected":"")+'>끝나자마자</option><option value="daily"'+(c.mode==="daily"?" selected":"")+'>매일 정해진 시각</option></select> '+
         (c.mode==="daily"?'<input type="number" min="0" max="23" data-set="hour" data-id="'+id+'" value="'+c.hour+'"> 시':""):'<span class="unk">–</span>')+
       "</td><td>"+(it.custom?'<button class="sm" data-act="delitem" data-id="'+id+'">빼기</button>':"")+"</td></tr>";});
   $("setBody").innerHTML=h||'<tr><td colspan="7" class="unk">항목이 없습니다.</td></tr>';
   $("addCraft").innerHTML=Object.keys(DATA.crafts).sort(function(a,b){return DATA.crafts[a].o-DATA.crafts[b].o;}).map(function(k){return '<option value="'+k+'">'+esc(DATA.crafts[k].n)+"</option>";}).join("");
-  var names={};items().forEach(function(it){names[it.ch.name]=1;});
-  $("charNames").innerHTML=Object.keys(names).map(function(n){return '<option value="'+esc(n)+'">';}).join("");
 }
 var ddDay=null;
 function renderDay(){
   var p=ddDay.split("-"),d=new Date(+p[0],p[1]-1,+p[2]),a=d.getTime()/1000,b=new Date(+p[0],p[1]-1,+p[2]+1).getTime()/1000;
   $("ddTitle").textContent=d.getFullYear()+"."+dayText(d)+" 제작 기록";
   var ls=ST.log.filter(function(l){return l.t>=a&&l.t<b;});
-  $("ddList").innerHTML=ls.length?ls.map(function(l){return '<div class="rd"><span class="nm"><b>'+hm(new Date(l.t*1000))+"</b> "+esc(l.cn)+" · "+esc(l.n)+(l.memo?' <span class="sub">'+esc(l.memo)+"</span>":"")+'</span><button class="sm" data-act="dellog" data-id="'+esc(l.id)+'">삭제</button></div>';}).join(""):'<div class="sub">이 날 적은 기록이 없습니다.</div>';
+  $("ddList").innerHTML=ls.length?ls.map(function(l){return '<div class="rd"><span class="nm"><b>'+hm(new Date(l.t*1000))+'</b> <span style="color:'+logColor(l)+'">'+esc(logName(l))+"</span>"+(l.memo?' <span class="sub">'+esc(l.memo)+"</span>":"")+'</span><button class="sm" data-act="dellog" data-id="'+esc(l.id)+'">삭제</button></div>';}).join(""):'<div class="sub">이 날 적은 기록이 없습니다.</div>';
   var sel=$("ddItem"),keep=sel.value;
-  sel.innerHTML=items().map(function(it){return '<option value="'+esc(it.id)+'">'+esc(label(it))+"</option>";}).join("");
+  sel.innerHTML=items().map(function(it){return '<option style="color:'+color(it)+'" value="'+esc(it.id)+'">'+esc(label(it))+"</option>";}).join("");
   if(keep)sel.value=keep;
 }
 function openDay(day){ddDay=day;var n=new Date(),today=n.getFullYear()+"-"+p2(n.getMonth()+1)+"-"+p2(n.getDate());
@@ -406,7 +410,7 @@ function renderAll(){var now=nowSec();renderNow(now);renderCal(now);renderLog();
 function localISO(t){var d=new Date(t*1000);return d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate())+"T"+hm(d);}
 function meta(){
   var parts=DATA.chars.map(function(c){return esc(c.name)+" ("+(c.realm?esc(c.realm)+", ":"")+"기록 "+full(c.updated)+")";});
-  $("meta").innerHTML="게임 기록 "+new Date(DATA.saved*1000).getFullYear()+"."+full(DATA.saved)+" · 페이지 생성 "+full(DATA.generated)+" · 캐릭터 "+DATA.chars.length+"명"+(parts.length?": "+parts.join(", "):"");
+  $("meta").innerHTML="게임 기록 "+new Date(DATA.saved*1000).getFullYear()+"."+full(DATA.saved)+" · 페이지 생성 "+full(DATA.generated);
   var age=nowSec()-DATA.saved;
   if(age>43200){$("stale").hidden=false;$("stale").textContent="게임 기록이 "+dur(age)+" 전 것입니다. 그 뒤에 제작한 것은 \"제작함\"으로 기록해 두면 쿨타임에 반영됩니다.";}
 }
@@ -446,7 +450,7 @@ $("ddForm").onsubmit=function(ev){ev.preventDefault();
   if(!it||!isFinite(t))return;
   addLog(it,t,$("ddMemo").value);$("ddMemo").value="";renderAll();};
 $("addForm").onsubmit=function(ev){ev.preventDefault();
-  var name=$("addName").value.trim(),k=$("addCraft").value;if(!name||!DATA.crafts[k])return;
+  var name=$("addName").value.trim()||(DATA.chars[0]?DATA.chars[0].name:"직접 추가"),k=$("addCraft").value;if(!DATA.crafts[k])return;
   if(!ST.custom.some(function(c){return c.name===name&&c.k===k;}))ST.custom.push({name:name,k:k});
   save();$("addName").value="";renderAll();};
 $("impFile").onchange=function(){var f=this.files&&this.files[0];if(!f)return;var r=new FileReader();
